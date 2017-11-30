@@ -24,7 +24,7 @@ public class TestGUI
     public JLabel     price;
     public JButton    saveButton;
 
-    private TestGUI()
+    public TestGUI()
     {
 
         okButton.addActionListener(new ActionListener()
