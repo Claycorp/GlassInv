@@ -1,10 +1,12 @@
+package Claycorp;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.UUID;
+
 
 public class TestGUI
 {
@@ -60,27 +62,15 @@ public class TestGUI
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                Main.helper.UUID++;
                 JsonHelper obj = new JsonHelper();
 
-                try (FileWriter writerFile = new FileWriter("databaseFile.json", true))
-                {
-                    Main.gson.toJson(obj);
-                    /*
-                    Main.root.addProperty("Company", companySelect.getSelectedItem().toString());
-                    Main.root.addProperty("PricePaid", pricePaidTextBox.getText().trim());
-                    Main.root.addProperty("CostPerInch", pricePerIN);
-                    Main.root.addProperty("Length", sizeTextBox1.getText().trim());
-                    Main.root.addProperty("With", sizeTextBox2.getText().trim());
-                    Main.root.addProperty("Area", totalArea);
-                    Main.root.addProperty("UUID", UUID);
-                    Main.gson.toJson(Main.root, writerFile);
-*/
-                }
-                catch (IOException i)
-                {
-                    i.printStackTrace();
-                }
+                obj.UUID = UUID.randomUUID();
+                obj.Manufacturer = companySelect.getSelectedItem().toString();
+
+
+                ArrayList<JsonHelper> db = JsonHelper.loadDatabase();
+                db.add(obj);
+                JsonHelper.saveDatabase(db);
 
             }
         });
@@ -106,9 +96,9 @@ public class TestGUI
         newGlassEntry = new JPanel();
         newGlassEntry.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(6, 7, new Insets(0, 0, 0, 0), -1, -1));
         newGlassEntry.setForeground(new Color(-6598469));
-        newGlassEntry.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "New Glass Entry"));
+        newGlassEntry.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "New Claycorp.Glass Entry"));
         nameOfGlassText = new JLabel();
-        nameOfGlassText.setText("Name of Glass");
+        nameOfGlassText.setText("Name of Claycorp.Glass");
         newGlassEntry.add(nameOfGlassText,
                 new com.intellij.uiDesigner.core.GridConstraints(1,
                         0,

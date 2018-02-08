@@ -1,3 +1,5 @@
+package Claycorp;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -60,14 +62,10 @@ public class Helper
         totalArea = size1 * size2;
     }
 
-      //Main.GUIINSTANCE.console.append("\nArea " + Main.GUIINSTANCE.totalArea.toString());
+      //Claycorp.Main.GUIINSTANCE.console.append("\nArea " + Claycorp.Main.GUIINSTANCE.totalArea.toString());
 
-      //  Main.GUIINSTANCE.console.append("\nCost " + pricePaid.toString() + " Price per IN " + pricePerIN.toString());
+      //  Claycorp.Main.GUIINSTANCE.console.append("\nCost " + pricePaid.toString() + " Price per IN " + pricePerIN.toString());
 
-    public void saveToJson()
-    {
-        Main.gson.toJson(Helper.class);
-    }
 
     public void writeToFile()
     {
