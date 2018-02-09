@@ -11,10 +11,10 @@ public class DataGlassSheet
      String PricePaid;
      BigDecimal PricePerInch;
 
-     int TotalArea;
-     int Size1;
-     int Size2;
-     Integer UUID;
+     int            TotalArea;
+     int            Size1;
+     int            Size2;
+     java.util.UUID UUID;
 
 
     DataGlassSheet(){

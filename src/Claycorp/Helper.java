@@ -1,7 +1,5 @@
 package Claycorp;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.regex.Pattern;
 
@@ -11,34 +9,38 @@ public class Helper
     int size2 = 1;
     int totalArea = 1;
 
-    Integer UUID = 0;
-
     BigDecimal pricePaid = BigDecimal.valueOf(1);
     BigDecimal pricePerIN = BigDecimal.valueOf(0);
 
     private Pattern numberRegex = Pattern.compile("([0-9]+)");
     private Pattern moneyRegex = Pattern.compile("(?:\\d*\\.)?\\d+");
 
-    void regexNumberCheck1(String in)
+    int regexNumberCheck1(String in)
     {
         if (numberRegex.matcher(in).matches())
         {
             size1 = Integer.parseInt(in);
+            return size1;
         }
         else {
             Main.GUIINSTANCE.console.append("\nSize " + in + " is not a number!");
         }
+        //TODO: Make error window to notify user of incorrect data when attepting to save it.
+        return 0;
     }
 
-    void regexNumberCheck2(String in)
+    int regexNumberCheck2(String in)
     {
         if (numberRegex.matcher(in).matches())
         {
             size2 = Integer.parseInt(in);
+            return size2;
         }
         else {
             Main.GUIINSTANCE.console.append("\nSize " + in + " is not a number!");
         }
+        //TODO: Make error window to notify user of incorrect data when attepting to save it.
+        return 0;
     }
 
     void regexCompareMoney(String price)
@@ -52,32 +54,15 @@ public class Helper
         }
     }
 
-    void calculateCostPerInch ()
+    BigDecimal calculateCostPerInch ()
     {
          pricePerIN = pricePaid.divide(BigDecimal.valueOf(totalArea), 2, BigDecimal.ROUND_HALF_UP);
+         return pricePerIN;
     }
 
-    void calculateArea ()
+    int calculateArea ()
     {
         totalArea = size1 * size2;
+        return totalArea;
     }
-
-      //Claycorp.Main.GUIINSTANCE.console.append("\nArea " + Claycorp.Main.GUIINSTANCE.totalArea.toString());
-
-      //  Claycorp.Main.GUIINSTANCE.console.append("\nCost " + pricePaid.toString() + " Price per IN " + pricePerIN.toString());
-
-
-    public void writeToFile()
-    {
-        try (FileWriter writerFile = new FileWriter("databaseFile.json", true))
-        {
-
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-
-    }
-
 }
