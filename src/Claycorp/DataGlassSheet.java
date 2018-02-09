@@ -4,21 +4,15 @@ import java.math.BigDecimal;
 
 public class DataGlassSheet
 {
-     String ItemID;
-     String NameOfGlasss;
-     String Manufacturer;
+    public String ItemID;
+    public String NameOfGlass;
+    public String Manufacturer;
 
-     String PricePaid;
-     BigDecimal PricePerInch;
+    public String PricePaid;
+    public BigDecimal PricePerInch;
 
-     int            TotalArea;
-     int            Size1;
-     int            Size2;
-     java.util.UUID UUID;
-
-
-    DataGlassSheet(){
-
-    }
-
+    public int TotalArea;
+    public int Size1;
+    public int Size2;
+    public java.util.UUID UUID;
 }

@@ -1,42 +1,43 @@
 package Claycorp;
 
-import com.google.gson.reflect.TypeToken;
-
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.xml.crypto.Data;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
 
 public class GlassEntryGUI
 {
-    public  JButton     okButton;
-    public  JTextField  sizeTextBox1;
-    public  JTextField  sizeTextBox2;
-    public  JComboBox   companySelect;
-    public  JTextField  nameOfGlassTextBox;
-    public  JLabel      nameOfGlassText;
-    public  JButton     clearButton;
-    public  JPanel      newGlassEntry;
-    public  JTextArea   console;
-    public  JTextField  pricePaidTextBox;
-    public  JTextField  partIDTextBox;
-    public  JButton     saveButton;
-    public  JTable      glassTable;
+    private final List<DataGlassSheet> db;
+
+    private JButton okButton;
+    private JTextField sizeTextBox1;
+    private JTextField sizeTextBox2;
+    private JComboBox companySelect;
+    private JTextField nameOfGlassTextBox;
+    private JLabel nameOfGlassText;
+    private JButton clearButton;
+    private JPanel newGlassEntry;
+    private JTextArea console;
+    private JTextField pricePaidTextBox;
+    private JTextField partIDTextBox;
+    private JButton saveButton;
+    private JTable glassTable;
     private JTabbedPane tabbedPane1;
     private JTabbedPane tabbedPane2;
-    private JButton     settingsButton;
-    private JButton     saveButton1;
-    private JButton     loadButton;
-    private JButton     TABLESSUCKButton;
+    private JButton settingsButton;
+    private JButton saveButton1;
+    private JButton loadButton;
+    private JButton TABLESSUCKButton;
 
-    public GlassEntryGUI()
+    public GlassEntryGUI(final Path databaseFile)
     {
+        db = JsonHelper.loadDatabase(databaseFile);
+
         //TODO: Someday in the future all the junk in this can be done via a log window and file.
         //Adds information to the console to check the data input. Isn't really needed TBH...
         okButton.addActionListener(new ActionListener()
@@ -45,13 +46,12 @@ public class GlassEntryGUI
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                Main.helper.regexNumberCheck1(sizeTextBox1.getText().trim());
-                Main.helper.regexNumberCheck2(sizeTextBox2.getText().trim());
-                Main.helper.regexCompareMoney(pricePaidTextBox.getText().trim());
-                Main.helper.calculateArea();
-                Main.helper.calculateCostPerInch();
-
-                Main.GUIINSTANCE.console.append("\nS1-" + Main.helper.size1 + " S2-" + Main.helper.size2 + " TA-" + Main.helper.totalArea + " PP-" + Main.helper.pricePaid + " PPI-" + Main.helper.pricePerIN + " ");
+                int size1 = Helper.regexNumberCheck(sizeTextBox1.getText().trim());
+                int size2 = Helper.regexNumberCheck(sizeTextBox2.getText().trim());
+                BigDecimal paid = Helper.regexCompareMoney(pricePaidTextBox.getText().trim());
+                int totalArea = size1 * size2;
+                BigDecimal ppi = Helper.calculateCostPerInch(paid, totalArea);
+                console.append("\nS1-" + size1 + " S2-" + size2 + " TA-" + totalArea + " PP-" + paid + " PPI-" + ppi + " ");
             }
         });
         //TODO: In the future the cancel button will close the glass entry window rater than clear current data.
@@ -77,24 +77,54 @@ public class GlassEntryGUI
             {
                 DataGlassSheet obj = new DataGlassSheet();
 
-                obj.UUID = UUID.randomUUID();
-                obj.Manufacturer = companySelect.getSelectedItem().toString();
-                obj.ItemID = partIDTextBox.getText();
-                obj.NameOfGlasss = nameOfGlassTextBox.getText();
-                obj.PricePaid = pricePaidTextBox.getText();
-                obj.PricePerInch = Main.helper.calculateCostPerInch();
-                obj.TotalArea = Main.helper.calculateArea();
-                obj.Size1 = Main.helper.regexNumberCheck1(sizeTextBox1.getText().trim());
-                obj.Size2 = Main.helper.regexNumberCheck2(sizeTextBox2.getText().trim());
+                try
+                {
+                    int size1 = Helper.regexNumberCheck(sizeTextBox1.getText().trim());
+                    int size2 = Helper.regexNumberCheck(sizeTextBox2.getText().trim());
+                    BigDecimal paid = Helper.regexCompareMoney(pricePaidTextBox.getText().trim());
+                    int totalArea = size1 * size2;
+                    BigDecimal ppi = Helper.calculateCostPerInch(paid, totalArea);
 
+                    obj.UUID = UUID.randomUUID();
+                    obj.Manufacturer = companySelect.getSelectedItem().toString();
+                    obj.ItemID = partIDTextBox.getText();
+                    obj.NameOfGlass = nameOfGlassTextBox.getText();
+                    obj.PricePaid = pricePaidTextBox.getText();
+                    obj.PricePerInch = ppi;
+                    obj.TotalArea = size1 * size2;
+                    obj.Size1 = size1;
+                    obj.Size2 = size2;
+                }
+                catch (NumberFormatException ex)
+                {
+                    // todo: replace with dialog box
+                    console.append("\n" + ex.getMessage());
+                    return;
+                }
 
-                ArrayList<DataGlassSheet> db = JsonHelper.loadDatabase();
+                // No loading here!
                 db.add(obj);
-                JsonHelper.saveDatabase(db);
-
+                // SAVE SAVE SAVE!
+                JsonHelper.saveDatabase(databaseFile, db);
+                // The underlying data has changed, so the UI must be refreshed
+                glassTable.updateUI();
             }
         });
-        GlassTableModel glass = new GlassTableModel();
+
+        saveButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                // Clear & fill because db is final.
+                db.clear();
+                db.addAll(JsonHelper.loadDatabase(databaseFile));
+                // The underlying data has changed, so the UI must be refreshed
+                glassTable.updateUI();
+            }
+        });
+
+
         /*
         glass.addColumn("Manufacturer");
         glass.addColumn("Item ID");
@@ -105,7 +135,14 @@ public class GlassEntryGUI
         glass.addColumn("UUID");
         */
 
-        glassTable.setModel(glass);
+        glassTable.setModel(new GlassTableModel(db));
+
+        // Actually show the window
+        JFrame frame = new JFrame("Glass Entry Form");
+        frame.setContentPane(newGlassEntry);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
     }
 
     {
@@ -461,6 +498,8 @@ public class GlassEntryGUI
                         false));
     }
 
-    /** @noinspection ALL */
+    /**
+     * @noinspection ALL
+     */
     public JComponent $$$getRootComponent$$$() { return newGlassEntry; }
 }

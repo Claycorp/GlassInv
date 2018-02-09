@@ -11,26 +11,16 @@ import java.nio.file.Paths;
 
 public class Main
 {
-    static       Gson       gson        = new GsonBuilder().setPrettyPrinting().create();
-    //static       JsonObject root        = new JsonObject();
-    static final GlassEntryGUI    GUIINSTANCE = new GlassEntryGUI();
-    static       Helper     helper      = new Helper();
+    public static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    public static void main(String [] args) throws IOException
+    public static void main(String[] args) throws IOException
     {
-        JFrame frame = new JFrame("Glass Entry Form");
-        frame.setContentPane(GUIINSTANCE.newGlassEntry);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
-
+        // This must happen first, cause errors will happen otherwise
         Path databaseFile = Paths.get("databaseFile.json");
         if (Files.notExists(databaseFile))
         {
             Files.createFile(databaseFile);
         }
-
-
+        new GlassEntryGUI(databaseFile);
     }
-
 }
