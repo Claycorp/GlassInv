@@ -18,7 +18,7 @@ public class Helper
         }
         else
         {
-            throw new NumberFormatException("Size " + in + " is not a number!");
+            throw new NumberFormatException("\'" + in + "\' is not a valid size!");
         }
     }
 
@@ -30,7 +30,7 @@ public class Helper
         }
         else
         {
-            throw new NumberFormatException("Money is in an invalid format or has invalid text!");
+            throw new NumberFormatException("\'" + price + "\' is not a valid price!");
         }
     }
 

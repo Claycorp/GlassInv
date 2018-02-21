@@ -1,6 +1,7 @@
 package Claycorp;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,32 +14,37 @@ import java.util.UUID;
 public class GlassEntryGUI
 {
     private final List<DataGlassSheet> db;
+    private final List<DataSettings> settings;
 
-    private JButton okButton;
-    private JTextField sizeTextBox1;
-    private JTextField sizeTextBox2;
-    private JComboBox companySelect;
-    private JTextField nameOfGlassTextBox;
-    private JLabel nameOfGlassText;
-    private JButton clearButton;
-    private JPanel newGlassEntry;
-    private JTextArea console;
-    private JTextField pricePaidTextBox;
-    private JTextField partIDTextBox;
-    private JButton saveButton;
-    private JTable glassTable;
-    private JTabbedPane tabbedPane1;
-    private JTabbedPane tabbedPane2;
-    private JButton settingsButton;
-    private JButton saveButton1;
-    private JButton loadButton;
-    private JButton TABLESSUCKButton;
+    private JButton     okButton;
+    private JTextField  sizeTextBox1;
+    private JTextField  sizeTextBox2;
+    private JComboBox   companySelect;
+    private JTextField  nameOfGlassTextBox;
+    private JLabel      nameOfGlassText;
+    private JButton     clearButton;
+    private JPanel      newGlassEntry;
+    private JTextArea   console;
+    private JTextField  pricePaidTextBox;
+    private JTextField  partIDTextBox;
+    private JButton     saveButton;
+    private JTable      glassTable;
+    private JTabbedPane entryPane;
+    private JTabbedPane tablePane;
+    private JButton     settingsButton;
+    private JButton     saveButton1;
+    private JButton     loadButton;
+    private JButton     TABLESSUCKButton;
 
-    public GlassEntryGUI(final Path databaseFile)
+    //todo: Refactor this to EntryGUI
+    //TODO: Add Console logging where needed based on settings, Also make any console printing save to a log file.
+    //TODO: Add save on exit prompt (some how).
+    public GlassEntryGUI(final Path databaseFile, final Path settingsFile)
     {
         db = JsonHelper.loadDatabase(databaseFile);
+        settings = JsonHelper.loadSettings(settingsFile);
 
-        //TODO: Someday in the future all the junk in this can be done via a log window and file.
+        //TODO: Someday in the future all the junk in this can be done via the console and save to file.
         //Adds information to the console to check the data input. Isn't really needed TBH...
         okButton.addActionListener(new ActionListener()
         {
@@ -54,7 +60,7 @@ public class GlassEntryGUI
                 console.append("\nS1-" + size1 + " S2-" + size2 + " TA-" + totalArea + " PP-" + paid + " PPI-" + ppi + " ");
             }
         });
-        //TODO: In the future the cancel button will close the glass entry window rater than clear current data.
+        //todo: Decide if this is really needed... If so, make sure to reset everything to default.
         //Clears all text fields and console.
         clearButton.addActionListener(new ActionListener()
         {
@@ -68,8 +74,8 @@ public class GlassEntryGUI
             }
         });
 
-        //TODO: Perhaps glass should have it's own JSON file seperate from everything else as it will change the most and has the most detail?
-        // Saves all datafields to the JSON
+        //TODO: Perhaps glass should have it's own JSON file separate from everything else as it will change the most and has the most detail?
+        // Saves all data to the JSON
         saveButton.addActionListener(new ActionListener()
         {
             @Override
@@ -79,6 +85,7 @@ public class GlassEntryGUI
 
                 try
                 {
+                    //TODO: Is there a better way to handle this checking? Then we can can catch all errors in one shot instead of only the last error?
                     int size1 = Helper.regexNumberCheck(sizeTextBox1.getText().trim());
                     int size2 = Helper.regexNumberCheck(sizeTextBox2.getText().trim());
                     BigDecimal paid = Helper.regexCompareMoney(pricePaidTextBox.getText().trim());
@@ -97,7 +104,8 @@ public class GlassEntryGUI
                 }
                 catch (NumberFormatException ex)
                 {
-                    // todo: replace with dialog box
+                    JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage(), "Number Error", JOptionPane.ERROR_MESSAGE);
+                    // todo: Add in log file shit and set console output to only work if enabled.
                     console.append("\n" + ex.getMessage());
                     return;
                 }
@@ -111,11 +119,12 @@ public class GlassEntryGUI
             }
         });
 
-        saveButton.addActionListener(new ActionListener()
+        loadButton.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
             {
+                console.append("\nTEST");
                 // Clear & fill because db is final.
                 db.clear();
                 db.addAll(JsonHelper.loadDatabase(databaseFile));
@@ -123,17 +132,6 @@ public class GlassEntryGUI
                 glassTable.updateUI();
             }
         });
-
-
-        /*
-        glass.addColumn("Manufacturer");
-        glass.addColumn("Item ID");
-        glass.addColumn("Name Of Glass");
-        glass.addColumn("Price Paid");
-        glass.addColumn("Price Per Inch");
-        glass.addColumn("Total Area");
-        glass.addColumn("UUID");
-        */
 
         glassTable.setModel(new GlassTableModel(db));
 
@@ -143,6 +141,28 @@ public class GlassEntryGUI
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+
+        //TODO: Remove this after all is done, its just a test button...
+        TABLESSUCKButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                JsonHelper.loadSettings(settingsFile);
+            }
+        });
+
+        //TODO: Make sure to load new
+        settingsButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                SettingsGUIDialog dialog = new SettingsGUIDialog(settingsFile);
+                dialog.pack();
+                dialog.setVisible(true);
+            }
+        });
     }
 
     {
@@ -162,30 +182,17 @@ public class GlassEntryGUI
     private void $$$setupUI$$$()
     {
         newGlassEntry = new JPanel();
-        newGlassEntry.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
+        newGlassEntry.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(4, 2, new Insets(5, 5, 5, 5), -1, -1));
         newGlassEntry.setForeground(new Color(-6598469));
         newGlassEntry.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "What shit do I own?"));
-        tabbedPane1 = new JTabbedPane();
-        newGlassEntry.add(tabbedPane1,
-                new com.intellij.uiDesigner.core.GridConstraints(1,
-                        1,
-                        1,
-                        1,
-                        com.intellij.uiDesigner.core.GridConstraints.ANCHOR_EAST,
-                        com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL,
-                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW,
-                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW,
-                        null,
-                        null,
-                        null,
-                        0,
-                        false));
+        entryPane = new JTabbedPane();
+        newGlassEntry.add(entryPane, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_EAST, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, 1, null, null, null, 0, false));
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 1, new Insets(5, 0, 0, 0), -1, -1));
-        tabbedPane1.addTab("Glass Entry", panel1);
+        entryPane.addTab("Glass Entry", panel1);
         panel1.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), null));
         final JPanel panel2 = new JPanel();
-        panel2.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(6, 4, new Insets(0, 0, 0, 0), -1, -1));
+        panel2.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(6, 4, new Insets(0, 3, 3, 3), -1, -1));
         panel1.add(panel2,
                 new com.intellij.uiDesigner.core.GridConstraints(0,
                         0,
@@ -214,21 +221,6 @@ public class GlassEntryGUI
                         null,
                         null,
                         null,
-                        0,
-                        false));
-        sizeTextBox2 = new JTextField();
-        panel2.add(sizeTextBox2,
-                new com.intellij.uiDesigner.core.GridConstraints(3,
-                        3,
-                        1,
-                        1,
-                        com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST,
-                        com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL,
-                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
-                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
-                        new Dimension(100, -1),
-                        null,
-                        new Dimension(100, -1),
                         0,
                         false));
         sizeTextBox1 = new JTextField();
@@ -296,31 +288,15 @@ public class GlassEntryGUI
                         0,
                         false));
         final JLabel label4 = new JLabel();
-        label4.setText("x");
-        panel2.add(label4,
-                new com.intellij.uiDesigner.core.GridConstraints(3,
-                        2,
-                        1,
-                        1,
-                        com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER,
-                        com.intellij.uiDesigner.core.GridConstraints.FILL_NONE,
-                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
-                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
-                        null,
-                        null,
-                        new Dimension(10, 10),
-                        0,
-                        false));
-        final JLabel label5 = new JLabel();
-        label5.setText("Manufacturer");
-        panel2.add(label5, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, 1, 1, null, null, null, 0, false));
+        label4.setText("Manufacturer");
+        panel2.add(label4, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, 1, 1, null, null, null, 0, false));
         partIDTextBox = new JTextField();
         partIDTextBox.setText("");
         panel2.add(partIDTextBox,
                 new com.intellij.uiDesigner.core.GridConstraints(4,
                         1,
                         1,
-                        1,
+                        3,
                         com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST,
                         com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL,
                         com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
@@ -337,7 +313,7 @@ public class GlassEntryGUI
                 new com.intellij.uiDesigner.core.GridConstraints(2,
                         1,
                         1,
-                        1,
+                        3,
                         com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST,
                         com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL,
                         com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
@@ -352,7 +328,7 @@ public class GlassEntryGUI
                 new com.intellij.uiDesigner.core.GridConstraints(1,
                         1,
                         1,
-                        1,
+                        3,
                         com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST,
                         com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL,
                         com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
@@ -371,13 +347,44 @@ public class GlassEntryGUI
         defaultComboBoxModel1.addElement("Youghiogheny");
         companySelect.setModel(defaultComboBoxModel1);
         companySelect.setToolTipText("Company that manufactured the glass.");
-        panel2.add(companySelect, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, 1, 1, null, null, null, 0, false));
+        panel2.add(companySelect, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 3, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, 1, 1, null, null, null, 0, false));
+        final JLabel label5 = new JLabel();
+        label5.setText("x");
+        panel2.add(label5,
+                new com.intellij.uiDesigner.core.GridConstraints(3,
+                        2,
+                        1,
+                        1,
+                        com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER,
+                        com.intellij.uiDesigner.core.GridConstraints.FILL_NONE,
+                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
+                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
+                        null,
+                        null,
+                        new Dimension(10, 10),
+                        0,
+                        false));
+        sizeTextBox2 = new JTextField();
+        panel2.add(sizeTextBox2,
+                new com.intellij.uiDesigner.core.GridConstraints(3,
+                        3,
+                        1,
+                        1,
+                        com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST,
+                        com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL,
+                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
+                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
+                        new Dimension(100, -1),
+                        null,
+                        new Dimension(100, -1),
+                        0,
+                        false));
         clearButton = new JButton();
         clearButton.setText("Clear");
         clearButton.setToolTipText("Clears all data from feilds.");
         panel2.add(clearButton,
                 new com.intellij.uiDesigner.core.GridConstraints(5,
-                        2,
+                        1,
                         1,
                         1,
                         com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER,
@@ -408,8 +415,9 @@ public class GlassEntryGUI
                         false));
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        tabbedPane1.addTab("Basic Item Entry", panel3);
+        entryPane.addTab("Basic Item Entry", panel3);
         final JToolBar toolBar1 = new JToolBar();
+        toolBar1.setFloatable(false);
         newGlassEntry.add(toolBar1,
                 new com.intellij.uiDesigner.core.GridConstraints(0,
                         0,
@@ -436,24 +444,24 @@ public class GlassEntryGUI
         TABLESSUCKButton = new JButton();
         TABLESSUCKButton.setText("TABLES SUCK");
         toolBar1.add(TABLESSUCKButton);
-        tabbedPane2 = new JTabbedPane();
-        newGlassEntry.add(tabbedPane2,
+        tablePane = new JTabbedPane();
+        newGlassEntry.add(tablePane,
                 new com.intellij.uiDesigner.core.GridConstraints(1,
                         0,
                         3,
                         1,
                         com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER,
                         com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH,
-                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
-                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
+                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
+                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
                         null,
-                        new Dimension(678, 200),
+                        null,
                         null,
                         0,
                         false));
         final JScrollPane scrollPane1 = new JScrollPane();
         scrollPane1.setAutoscrolls(true);
-        tabbedPane2.addTab("Untitled", scrollPane1);
+        tablePane.addTab("Untitled", scrollPane1);
         glassTable = new JTable();
         glassTable.setAutoCreateColumnsFromModel(true);
         glassTable.setAutoCreateRowSorter(true);
@@ -467,13 +475,14 @@ public class GlassEntryGUI
                         1,
                         com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER,
                         com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH,
-                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
-                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
-                        new Dimension(300, -1),
-                        null,
-                        null,
+                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW,
+                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW,
+                        new Dimension(30, -1),
+                        new Dimension(30, -1),
+                        new Dimension(768, -1),
                         0,
                         false));
+        scrollPane2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createRaisedBevelBorder(), "Console", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, new Color(-4514048)));
         console = new JTextArea();
         console.setDragEnabled(false);
         console.setEditable(false);
@@ -489,7 +498,7 @@ public class GlassEntryGUI
                         1,
                         com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER,
                         com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL,
-                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
+                        com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
                         com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
                         null,
                         null,
@@ -498,8 +507,6 @@ public class GlassEntryGUI
                         false));
     }
 
-    /**
-     * @noinspection ALL
-     */
+    /** @noinspection ALL */
     public JComponent $$$getRootComponent$$$() { return newGlassEntry; }
 }
