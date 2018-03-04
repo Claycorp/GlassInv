@@ -2,6 +2,7 @@ package Claycorp;
 
 import com.google.gson.reflect.TypeToken;
 
+import javax.swing.*;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -16,24 +17,28 @@ public class JsonHelper
     public static List<DataGlassSheet> loadDatabase(Path databaseFile)
     {
         if (Files.notExists(databaseFile))
-    {
-        return new ArrayList<>();
-    }
-    else
-        try (FileReader fileReader = new FileReader(databaseFile.toFile()))
         {
-            ArrayList<DataGlassSheet> db = Main.gson.fromJson(fileReader, new TypeToken<ArrayList<DataGlassSheet>>(){}.getType());
-            if (db == null) return new ArrayList<>();
-            return db;
+            return new ArrayList<>();
         }
-        catch (IOException e)
+        else
         {
-            // todo: Show popup or yell at user
-            e.printStackTrace();
+            try (FileReader fileReader = new FileReader(databaseFile.toFile()))
+            {
+                ArrayList<DataGlassSheet> db = Main.gson.fromJson(fileReader, new TypeToken<ArrayList<DataGlassSheet>>() {}.getType());
+                if (db == null) return new ArrayList<>();
+                return db;
+            }
+            catch (IOException e)
+            {
+                JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), e.getMessage(), "IOException", JOptionPane.ERROR_MESSAGE);
+                //Helper.logger("\n" + e.getMessage(), 2, entryGUI);
+                e.printStackTrace();
+            }
+            return new ArrayList<>();
         }
-        return new ArrayList<>();
 
     }
+
     //Save Database to JSON
     public static void saveDatabase(Path databaseFile, List<DataGlassSheet> database)
     {
@@ -44,46 +49,41 @@ public class JsonHelper
         }
         catch (IOException i)
         {
-            // todo: Show popup or yell at user
+            JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), i.getMessage(), "IOException", JOptionPane.ERROR_MESSAGE);
+            //Helper.logger("\n" + i.getMessage(), 2, entryGUI);
             i.printStackTrace();
         }
     }
 
-    public static List<DataSettings> loadSettings(Path settingsFile)
+    public static DataSettings loadSettings(Path settingsFile)
     {
-        final List<DataSettings> settings = new ArrayList<>();
+        DataSettings obj = new DataSettings();
+
         if (Files.notExists(settingsFile))
         {
-            try
-            {
-                Files.createFile(settingsFile);
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-            DataSettings obj = new DataSettings();
-            obj.omniBoxOptions = new String[] {"Kokomo", "Spectrum", "Oceanside Glasstile", "Armstrong", "Wismach"};
-            obj.debug = false;
-            obj.showConsole = true;
-            obj.showQuickEntry = true;
-            settings.add(obj);
-            saveSettings(settingsFile, settings);
+            saveSettings(settingsFile, obj);
+            return obj;
         }
-        else try (FileReader fileReader = new FileReader(settingsFile.toFile()))
+        else
         {
-            Main.gson.fromJson(fileReader, new TypeToken<ArrayList<DataSettings>>(){}.getType());
+            try (FileReader fileReader = new FileReader(settingsFile.toFile()))
+            {
+                DataSettings tmp = Main.gson.fromJson(fileReader, new TypeToken<DataSettings>() {}.getType());
+                if (tmp == null) return obj;
+                return tmp;
+            }
+            catch (IOException i)
+            {
+                JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), i.getMessage(), "IOException", JOptionPane.ERROR_MESSAGE);
+                //Helper.logger("\n" + i.getMessage(), 2, entryGUI);
+                i.printStackTrace();
+                return obj;
+            }
         }
-        catch (IOException i)
-        {
-            // todo: Show popup or yell at user
-            i.printStackTrace();
-        }
-        return new ArrayList<>();
     }
 
     //Save the settings to the file.
-    public static void saveSettings(Path settingsFile, List<DataSettings> settings)
+    public static void saveSettings(Path settingsFile, DataSettings settings)
     {
         try (FileWriter fileWriter = new FileWriter(settingsFile.toFile(), false))
         {
@@ -91,7 +91,8 @@ public class JsonHelper
         }
         catch (IOException i)
         {
-            // todo: Show popup or yell at user
+            JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), i.getMessage(), "IOException", JOptionPane.ERROR_MESSAGE);
+            //Helper.logger("\n" + i.getMessage(), 2, entryGUI);
             i.printStackTrace();
         }
     }
