@@ -8,10 +8,9 @@ public class DataSettings
     public boolean debug = false;
     public boolean showConsole = false;
     public boolean showQuickEntry = true;
-    public String logfile = "log";
     public String dateTimeFormat = "yyyy/MM/dd-HH:mm:ss";
 
-    public DataSettings ()
+    DataSettings ()
     {
         omniBoxOptions.add("Kokomo");
         omniBoxOptions.add("Spectrum");

@@ -25,14 +25,22 @@ public class GlassTableModel extends AbstractTableModel
         DataGlassSheet item = db.get(rowIndex);
         switch (columnIndex)
         {
-            case 0: return item.Manufacturer;
-            case 1: return item.ItemID;
-            case 2: return item.NameOfGlass;
-            case 3: return item.PricePaid;
-            case 4: return item.PricePerInch;
-            case 5: return item.TotalArea;
-            case 6: return item.UUID;
-            default: return null; // fuck. This shouldn't happen.
+            case 0:
+                return item.Manufacturer;
+            case 1:
+                return item.ItemID;
+            case 2:
+                return item.NameOfGlass;
+            case 3:
+                return item.PricePaid;
+            case 4:
+                return item.PricePerInch;
+            case 5:
+                return item.TotalArea;
+            case 6:
+                return item.UUID;
+            default:
+                return null; // fuck. This shouldn't happen.
         }
     }
 
@@ -52,4 +60,5 @@ public class GlassTableModel extends AbstractTableModel
     {
         return false;
     }
+
 }

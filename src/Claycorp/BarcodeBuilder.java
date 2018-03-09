@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class BarcodeHelper
+public class BarcodeBuilder
 {
     QrCode barcode = new QrCode();
     //Code128 barcode = new Code128();

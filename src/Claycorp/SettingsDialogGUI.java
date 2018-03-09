@@ -17,8 +17,9 @@ public class SettingsDialogGUI extends JDialog
     private JButton removeOptionButton;
     private JCheckBox consoleCheck;
     private JTextField timestampBox;
+    private EntryGUI entryGUI = Main.entrygui;
 
-    public SettingsDialogGUI(DataSettings settings, Path settingsFile, EntryGUI entryGUI)
+    public SettingsDialogGUI(DataSettings settings, Path settingsFile)
     {
         //TODO: Should I log any changes?
 

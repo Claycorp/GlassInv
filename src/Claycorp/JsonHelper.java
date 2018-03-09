@@ -31,7 +31,7 @@ public class JsonHelper
             catch (IOException e)
             {
                 JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), e.getMessage(), "IOException", JOptionPane.ERROR_MESSAGE);
-                //Helper.logger("\n" + e.getMessage(), 2, entryGUI);
+                Logger.log(e.getMessage(), 2);
                 e.printStackTrace();
             }
             return new ArrayList<>();
@@ -50,7 +50,7 @@ public class JsonHelper
         catch (IOException i)
         {
             JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), i.getMessage(), "IOException", JOptionPane.ERROR_MESSAGE);
-            //Helper.logger("\n" + i.getMessage(), 2, entryGUI);
+            Logger.log(i.getMessage(), 2);
             i.printStackTrace();
         }
     }
@@ -75,7 +75,7 @@ public class JsonHelper
             catch (IOException i)
             {
                 JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), i.getMessage(), "IOException", JOptionPane.ERROR_MESSAGE);
-                //Helper.logger("\n" + i.getMessage(), 2, entryGUI);
+                Logger.log(i.getMessage(), 2);
                 i.printStackTrace();
                 return obj;
             }
@@ -92,8 +92,49 @@ public class JsonHelper
         catch (IOException i)
         {
             JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), i.getMessage(), "IOException", JOptionPane.ERROR_MESSAGE);
-            //Helper.logger("\n" + i.getMessage(), 2, entryGUI);
+            Logger.log(i.getMessage(), 2);
             i.printStackTrace();
+        }
+    }
+
+    public static void saveLabelData(Path labelDatafile, DataLabel labelData)
+    {
+        try (FileWriter fileWriter = new FileWriter(labelDatafile.toFile(), false))
+        {
+            Main.gson.toJson(labelData, fileWriter);
+        }
+        catch (IOException i)
+        {
+            JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), i.getMessage(), "IOException", JOptionPane.ERROR_MESSAGE);
+            Logger.log(i.getMessage(), 2);
+            i.printStackTrace();
+        }
+    }
+
+    public static DataLabel loadLabelData(Path labelDatafile)
+    {
+        DataLabel obj = new DataLabel();
+
+        if (Files.notExists(labelDatafile))
+        {
+            saveLabelData(labelDatafile, obj);
+            return obj;
+        }
+        else
+        {
+            try (FileReader fileReader = new FileReader(labelDatafile.toFile()))
+            {
+                DataLabel tmp = Main.gson.fromJson(fileReader, new TypeToken<DataLabel>() {}.getType());
+                if (tmp == null) return obj;
+                return tmp;
+            }
+            catch (IOException i)
+            {
+                JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), i.getMessage(), "IOException", JOptionPane.ERROR_MESSAGE);
+                Logger.log(i.getMessage(), 2);
+                i.printStackTrace();
+                return obj;
+            }
         }
     }
 }

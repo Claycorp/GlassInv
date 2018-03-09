@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 public class Main
 {
     public static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    static EntryGUI entrygui;
 
     public static void main(String[] args)
     {
@@ -16,7 +17,8 @@ public class Main
         Path databaseFile = Paths.get("database.json");
         Path settingsFile = Paths.get("settings.json");
 
-        new EntryGUI(databaseFile, settingsFile);
-
+        new Claycorp.Logger(JsonHelper.loadSettings(settingsFile), null);
+        entrygui = new EntryGUI(databaseFile, settingsFile);
+        Claycorp.Logger.setEntryGUI(entrygui);
     }
 }

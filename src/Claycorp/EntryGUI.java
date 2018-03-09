@@ -15,8 +15,6 @@ public class EntryGUI
 {
     private final List<DataGlassSheet> db;
     private DataSettings settings;
-    private EntryGUI entryGUI;
-    private LabelMakerGUI labelMakerGUI;
     private JFrameLabelBuilder labelBuilder;
 
     private JTextField sizeTextBox1;
@@ -41,17 +39,23 @@ public class EntryGUI
     private JTextField textField2;
     private JTextField textField3;
     private JScrollPane ScrollPane;
-    private JButton button1;
+    private JButton labelEditor;
+    private JButton deleteButton;
+    private JButton edit;
+    private JButton printButton;
 
     //TODO: Fix table sorting being incorrect.
     //TODO: Add save on exit prompt (some how).
-    public EntryGUI(final Path databaseFile, final Path settingsFile)
+    //TODO: Add printing based off the setup label template.
+    //TODO: Printing period.
+    //TODO: Delete from the JSON not the table.
+    //TODO: Make printable label component, place this into the GUI instead.
+    EntryGUI(final Path databaseFile, final Path settingsFile)
     {
         db = JsonHelper.loadDatabase(databaseFile);
         settings = JsonHelper.loadSettings(settingsFile);
-        entryGUI = this;
-        labelMakerGUI = new LabelMakerGUI();
         labelBuilder = new JFrameLabelBuilder();
+
 
         uiUpdate(settingsFile);
 
@@ -80,7 +84,6 @@ public class EntryGUI
 
                 try
                 {
-                    //TODO: Is there a better way to handle this checking? Then we can can catch all errors in one shot instead of only the last error?
                     int size1 = Helper.regexNumberCheck(sizeTextBox1.getText().trim());
                     int size2 = Helper.regexNumberCheck(sizeTextBox2.getText().trim());
                     BigDecimal paid = Helper.regexCompareMoney(pricePaidTextBox.getText().trim());
@@ -100,7 +103,7 @@ public class EntryGUI
                 catch (NumberFormatException ex)
                 {
                     JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage(), "Number Error", JOptionPane.ERROR_MESSAGE);
-                    Helper.logger("\n" + ex.getMessage(), 2, entryGUI);
+                    Logger.log("\n" + ex.getMessage(), 2);
                     return;
                 }
 
@@ -118,7 +121,7 @@ public class EntryGUI
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                Helper.logger("Loading: " + databaseFile, 0, entryGUI);
+                Logger.log("Loading: " + databaseFile, 0);
                 // Clear & fill because db is final.
                 db.clear();
                 db.addAll(JsonHelper.loadDatabase(databaseFile));
@@ -142,25 +145,23 @@ public class EntryGUI
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                SettingsDialogGUI dialog = new SettingsDialogGUI(settings, settingsFile, entryGUI);
+                SettingsDialogGUI dialog = new SettingsDialogGUI(settings, settingsFile);
+                dialog.setTitle("Settings");
                 dialog.pack();
                 dialog.setVisible(true);
             }
         });
-        button1.addActionListener(new ActionListener()
+        labelEditor.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
             {
                 labelBuilder.setBarcodeContent("TESTING");
-
-                JFrame frame = new JFrame("Barcode Builder");
-                frame.getContentPane().add(labelBuilder);
-                frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-                frame.pack();
-                frame.setVisible(true);
-
-
+                JFrame frame1 = new JFrame("Label Editor");
+                frame1.setContentPane(new LabelMakerGUI());
+                frame1.setTitle("Label Editor");
+                frame1.pack();
+                frame1.setVisible(true);
 
                 /*
                 QrCode barcode = new QrCode();
@@ -188,6 +189,22 @@ public class EntryGUI
                 */
             }
         });
+        deleteButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+
+                //TODO: Make this work. LUL, Remove entries based off UUID?
+                glassTable.getSelectedRow();
+                Logger.log(String.valueOf(glassTable.getSelectedRow()), 0);
+                if (JOptionPane.showInternalConfirmDialog(newGlassEntry, "You are about to delete row \"" + glassTable.getSelectedRow() + "\"! Are you sure?", "Confirm Delete", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == 0)
+                {
+                    glassTable.remove(glassTable.getSelectedRow());
+                    glassTable.updateUI();
+                }
+            }
+        });
     }
 
     public void uiUpdate(Path settingsFile)
@@ -203,7 +220,7 @@ public class EntryGUI
             companySelect.addItem(option);
         }
 
-        //Update the whole thing.
+        //Update the whole thing. MAKE SURE TO DO ANY CHANGES TO THE GUI ABOVE THIS OR IT WILL NEVER UPDATE CORRECTLY!!
         newGlassEntry.updateUI();
     }
 
@@ -231,7 +248,7 @@ public class EntryGUI
     private void $$$setupUI$$$()
     {
         newGlassEntry = new JPanel();
-        newGlassEntry.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(4, 2, new Insets(5, 5, 5, 5), -1, -1));
+        newGlassEntry.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(5, 2, new Insets(5, 5, 5, 5), -1, -1));
         newGlassEntry.setForeground(new Color(-6598469));
         newGlassEntry.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "What shit do I own?"));
         entryPane = new JTabbedPane();
@@ -324,9 +341,9 @@ public class EntryGUI
         settingsButton = new JButton();
         settingsButton.setText("Settings");
         toolBar1.add(settingsButton);
-        button1 = new JButton();
-        button1.setText("Button");
-        toolBar1.add(button1);
+        labelEditor = new JButton();
+        labelEditor.setText("Label Editor");
+        toolBar1.add(labelEditor);
         tablePane = new JTabbedPane();
         newGlassEntry.add(tablePane, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 3, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         ScrollPane = new JScrollPane();
@@ -347,8 +364,20 @@ public class EntryGUI
         console.setEnabled(true);
         console.setToolTipText("Information about what is going on!");
         consolePane.setViewportView(console);
+        final JToolBar toolBar2 = new JToolBar();
+        newGlassEntry.add(toolBar2, new com.intellij.uiDesigner.core.GridConstraints(4, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 20), null, 0, false));
+        deleteButton = new JButton();
+        deleteButton.setText("Delete");
+        toolBar2.add(deleteButton);
+        edit = new JButton();
+        edit.setHideActionText(false);
+        edit.setText("Edit?");
+        toolBar2.add(edit);
+        printButton = new JButton();
+        printButton.setText("Print Selected");
+        toolBar2.add(printButton);
         final com.intellij.uiDesigner.core.Spacer spacer2 = new com.intellij.uiDesigner.core.Spacer();
-        newGlassEntry.add(spacer2, new com.intellij.uiDesigner.core.GridConstraints(3, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        newGlassEntry.add(spacer2, new com.intellij.uiDesigner.core.GridConstraints(3, 1, 2, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     }
 
     /**
