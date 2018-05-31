@@ -22,6 +22,8 @@ public class SettingsDialogGUI extends JDialog
     public SettingsDialogGUI(DataSettings settings, Path settingsFile)
     {
         //TODO: Should I log any changes?
+        //TODO: Make the date time format update on settings save rather than on program restart.
+        //TODO: Make the date time format validate before updating.
 
         omniOptionsList.setModel(new OptionsListModel(settings));
         setContentPane(contentPane);

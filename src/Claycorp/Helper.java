@@ -1,6 +1,9 @@
 package Claycorp;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.math.BigDecimal;
 import java.util.regex.Pattern;
 
@@ -8,6 +11,7 @@ public class Helper
 {
     private static Pattern numberRegex = Pattern.compile("([0-9]+)");
     private static Pattern moneyRegex = Pattern.compile("(?:\\d*\\.)?\\d+");
+    private static Font[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
 
     public Helper() {}
 
@@ -54,4 +58,28 @@ public class Helper
             return null;
         }
     }
+
+    public Font[] getFontList()
+    {
+        //TODO: Do something with this.
+        return fonts;
+    }
+
+    public static void printLabel()
+    {
+        PrinterJob printJob = PrinterJob.getPrinterJob();
+        printJob.setPrintable(new DataLabel());
+        if (printJob.printDialog())
+        {
+            try
+            {
+                printJob.print();
+            }
+            catch (PrinterException pe)
+            {
+                //TODO: Log, Error, Dialog and all that magic it here.
+            }
+        }
+    }
+
 }

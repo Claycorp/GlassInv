@@ -320,12 +320,17 @@
             <maximum-size width="768" height="-1"/>
           </grid>
         </constraints>
-        <properties/>
+        <properties>
+          <autoscrolls value="true"/>
+        </properties>
+        <clientProperties>
+          <html.disable class="java.lang.Boolean" value="false"/>
+        </clientProperties>
         <border type="bevel-raised" title="Console">
           <title-color color="-4514048"/>
         </border>
         <children>
-          <component id="d5585" class="javax.swing.JTextArea" binding="console">
+          <component id="8ac5b" class="javax.swing.JTextPane" binding="console">
             <constraints/>
             <properties>
               <dragEnabled value="false"/>

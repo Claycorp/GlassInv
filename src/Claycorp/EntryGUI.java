@@ -2,9 +2,12 @@ package Claycorp;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.html.HTMLDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.util.List;
@@ -15,7 +18,8 @@ public class EntryGUI
 {
     private final List<DataGlassSheet> db;
     private DataSettings settings;
-    private JFrameLabelBuilder labelBuilder;
+    private DataLabel labelData;
+
 
     private JTextField sizeTextBox1;
     private JTextField sizeTextBox2;
@@ -24,7 +28,7 @@ public class EntryGUI
     private JLabel nameOfGlassText;
     private JButton clearButton;
     private JPanel newGlassEntry;
-    private JTextArea console;
+    private JTextPane console;
     private JTextField pricePaidTextBox;
     private JTextField partIDTextBox;
     private JButton saveButton;
@@ -47,15 +51,17 @@ public class EntryGUI
     //TODO: Fix table sorting being incorrect.
     //TODO: Add save on exit prompt (some how).
     //TODO: Add printing based off the setup label template.
-    //TODO: Printing period.
     //TODO: Delete from the JSON not the table.
-    //TODO: Make printable label component, place this into the GUI instead.
     EntryGUI(final Path databaseFile, final Path settingsFile)
     {
         db = JsonHelper.loadDatabase(databaseFile);
         settings = JsonHelper.loadSettings(settingsFile);
-        labelBuilder = new JFrameLabelBuilder();
+        labelData = new DataLabel();
+        console.setContentType("text/html");
+        console.setText("<html>Welcome to The List");
 
+        GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        Font[] fonts = e.getAllFonts();
 
         uiUpdate(settingsFile);
 
@@ -102,7 +108,8 @@ public class EntryGUI
                 }
                 catch (NumberFormatException ex)
                 {
-                    JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage(), "Number Error", JOptionPane.ERROR_MESSAGE);
+                    //TODO: Check to make sure the dialog isn't needed 100%
+                    //JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage(), "Number Error", JOptionPane.ERROR_MESSAGE);
                     Logger.log("\n" + ex.getMessage(), 2);
                     return;
                 }
@@ -156,9 +163,9 @@ public class EntryGUI
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                labelBuilder.setBarcodeContent("TESTING");
+                //labelBuilder.setBarcodeContent("TESTING");
                 JFrame frame1 = new JFrame("Label Editor");
-                frame1.setContentPane(new LabelMakerGUI());
+                frame1.setContentPane(new LabelMakerGUI().contentPane);
                 frame1.setTitle("Label Editor");
                 frame1.pack();
                 frame1.setVisible(true);
@@ -195,7 +202,7 @@ public class EntryGUI
             public void actionPerformed(ActionEvent e)
             {
 
-                //TODO: Make this work. LUL, Remove entries based off UUID?
+                //TODO: Remove things from the JSON and reload rather than from the table.
                 glassTable.getSelectedRow();
                 Logger.log(String.valueOf(glassTable.getSelectedRow()), 0);
                 if (JOptionPane.showInternalConfirmDialog(newGlassEntry, "You are about to delete row \"" + glassTable.getSelectedRow() + "\"! Are you sure?", "Confirm Delete", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == 0)
@@ -208,27 +215,27 @@ public class EntryGUI
     }
 
     public void uiUpdate(Path settingsFile)
+{
+    JsonHelper.loadSettings(settingsFile);
+
+    //Show the console window if selected.
+    consolePane.setVisible(settings.showConsole);
+
+    //Go through our settings for omniBoxOptions and add all the options from the settings file to the GUI.
+    for (Object option : settings.omniBoxOptions)
     {
-        JsonHelper.loadSettings(settingsFile);
-
-        //Show the console window if selected.
-        consolePane.setVisible(settings.showConsole);
-
-        //Go through our settings for omniBoxOptions and add all the options from the settings file to the GUI.
-        for (Object option : settings.omniBoxOptions)
-        {
-            companySelect.addItem(option);
-        }
-
-        //Update the whole thing. MAKE SURE TO DO ANY CHANGES TO THE GUI ABOVE THIS OR IT WILL NEVER UPDATE CORRECTLY!!
-        newGlassEntry.updateUI();
+        companySelect.addItem(option);
     }
 
-    public void consoleAppend(String input, Color color)
-    {
+    //Update the whole thing. MAKE SURE TO DO ANY CHANGES TO THE GUI ABOVE THIS OR IT WILL NEVER UPDATE CORRECTLY!!
+    newGlassEntry.updateUI();
+}
 
-        console.setForeground(color);
-        console.append(input);
+    public void consoleAppend(String input) throws IOException, BadLocationException
+    {
+        HTMLDocument doc = (HTMLDocument) console.getStyledDocument();
+
+        doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()), input);
     }
 
     {
@@ -356,9 +363,11 @@ public class EntryGUI
         glassTable.setName("");
         ScrollPane.setViewportView(glassTable);
         consolePane = new JScrollPane();
+        consolePane.setAutoscrolls(true);
+        consolePane.putClientProperty("html.disable", Boolean.FALSE);
         newGlassEntry.add(consolePane, new com.intellij.uiDesigner.core.GridConstraints(2, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(30, -1), new Dimension(30, -1), new Dimension(768, -1), 0, false));
         consolePane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createRaisedBevelBorder(), "Console", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, new Color(-4514048)));
-        console = new JTextArea();
+        console = new JTextPane();
         console.setDragEnabled(false);
         console.setEditable(false);
         console.setEnabled(true);
