@@ -12,12 +12,13 @@ import java.io.IOException;
 public class BarcodeBuilder
 {
 
-    QrCode barcode = new QrCode();
+    private QrCode barcode = new QrCode();
 
     //Code128 barcode = new Code128();
 
-    //TODO: Need a way to get all the data from the selected element in the .
-    //TODO: Can this be simplified some how? Making the barcode twice seems wasteful.
+    //TODO: Need a way to get all the data from the selected element in the table.
+    //TODO: Do we need to save barcodes? Perhaps saving the label instead would be better.
+    //TODO: Should I add support for other barcodes? Perhaps a sector to switch barcode types? (Would need some sort of validation as not all barcodes are alike....)
     public BarcodeBuilder()
     {
     }
@@ -64,5 +65,15 @@ public class BarcodeBuilder
         {
             e.printStackTrace();
         }
+    }
+
+    public int getBarcodeHight()
+    {
+        return barcode.getHeight();
+    }
+
+    public int getBarcodeWidth()
+    {
+        return barcode.getWidth();
     }
 }

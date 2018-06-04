@@ -18,8 +18,6 @@ public class EntryGUI
 {
     private final List<DataGlassSheet> db;
     private DataSettings settings;
-    private DataLabel labelData;
-
 
     private JTextField sizeTextBox1;
     private JTextField sizeTextBox2;
@@ -56,12 +54,11 @@ public class EntryGUI
     {
         db = JsonHelper.loadDatabase(databaseFile);
         settings = JsonHelper.loadSettings(settingsFile);
-        labelData = new DataLabel();
-        console.setContentType("text/html");
-        console.setText("<html>Welcome to The List");
 
-        GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        Font[] fonts = e.getAllFonts();
+        //Set the console to work with HTML
+        console.setContentType("text/html");
+        //Some start text and the all important first HTML tag. THIS MUST HAVE <html> OR EVERYTHING IS FUCKED.
+        console.setText("<html>Welcome to The List");
 
         uiUpdate(settingsFile);
 
@@ -163,37 +160,11 @@ public class EntryGUI
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                //labelBuilder.setBarcodeContent("TESTING");
                 JFrame frame1 = new JFrame("Label Editor");
                 frame1.setContentPane(new LabelMakerGUI().contentPane);
                 frame1.setTitle("Label Editor");
                 frame1.pack();
                 frame1.setVisible(true);
-
-                /*
-                QrCode barcode = new QrCode();
-                barcode.setContent("Test");
-
-                int widith = barcode.getWidth();
-                int hight = barcode.getHeight();
-
-                BufferedImage image = new BufferedImage(widith, hight, BufferedImage.TYPE_BYTE_GRAY);
-                Graphics2D g2d = image.createGraphics();
-                g2d.setPaint(Color.WHITE);
-                g2d.fillRect(0, 0, widith, hight);
-
-                Java2DRenderer renderer = new Java2DRenderer(g2d, 1, Color.WHITE, Color.BLACK);
-                renderer.render(barcode);
-
-                try
-                {
-                    ImageIO.write(image, "png", new File("code128.png"));
-                }
-                catch (IOException i)
-                {
-                    i.printStackTrace();
-                }
-                */
             }
         });
         deleteButton.addActionListener(new ActionListener()
@@ -236,6 +207,11 @@ public class EntryGUI
         HTMLDocument doc = (HTMLDocument) console.getStyledDocument();
 
         doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()), input);
+    }
+
+    public void getSelectedRow()
+    {
+        glassTable.getSelectedRow();
     }
 
     {

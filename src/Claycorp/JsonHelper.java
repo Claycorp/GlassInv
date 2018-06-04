@@ -97,6 +97,7 @@ public class JsonHelper
         }
     }
 
+    //TODO: Setup and use this to save label layouts.
     public static void saveLabelData(Path labelDatafile, DataLabel labelData)
     {
         try (FileWriter fileWriter = new FileWriter(labelDatafile.toFile(), false))

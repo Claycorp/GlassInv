@@ -1,9 +1,12 @@
 package Claycorp;
 
+
+import javax.print.*;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import javax.print.attribute.standard.MediaPrintableArea;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
 import java.math.BigDecimal;
 import java.util.regex.Pattern;
 
@@ -67,19 +70,38 @@ public class Helper
 
     public static void printLabel()
     {
-        PrinterJob printJob = PrinterJob.getPrinterJob();
-        printJob.setPrintable(new DataLabel());
-        if (printJob.printDialog())
+        DataLabel labelData = new DataLabel();
+        //Get the list of printers. We don't care about anything so null works.
+        PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
+
+        //Need this to set the selected printer when opening the print UI.
+        PrintService defaultPrintService = PrintServiceLookup.lookupDefaultPrintService();
+
+        //All the magic settings for the magic box to do magic. This is empty and is filled in after print confirmation. (AKA Page settings.)
+        PrintRequestAttributeSet attrib = new HashPrintRequestAttributeSet();
+
+        //Resize?
+        MediaPrintableArea mpa = new MediaPrintableArea(0.06F,0.06F,0.06F,0.06F,1);
+        attrib.add(mpa);
+
+        //Open the print UI.
+        PrintService selectedPrintService = ServiceUI.printDialog(null, 150, 150, printServices, defaultPrintService, null, attrib);
+
+        Doc doc = new SimpleDoc(labelData, DocFlavor.SERVICE_FORMATTED.PRINTABLE,null);
+
+        if(selectedPrintService!=null)
         {
+            DocPrintJob job = selectedPrintService.createPrintJob();
             try
             {
-                printJob.print();
+                job.print(doc, attrib);
             }
-            catch (PrinterException pe)
+            catch (PrintException e)
             {
-                //TODO: Log, Error, Dialog and all that magic it here.
+                e.printStackTrace();
             }
         }
+        else
+            System.out.println("selection cancelled");
     }
-
 }
