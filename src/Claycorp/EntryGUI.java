@@ -1,5 +1,6 @@
 package Claycorp;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.BadLocationException;
@@ -7,6 +8,7 @@ import javax.swing.text.html.HTMLDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Path;
@@ -183,24 +185,48 @@ public class EntryGUI
                 }
             }
         });
+        edit.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                Helper.brotherLabelPrint();
+            }
+        });
+        printButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                try
+                {
+                    //TODO: I do want to save labels at some point and must to print, This only works if the label editor is open!
+                    ImageIO.write(DataLabel.getLabel(), "PNG", new File("test.png"));
+                }
+                catch (IOException e1)
+                {
+                    e1.printStackTrace();
+                }
+            }
+        });
     }
 
     public void uiUpdate(Path settingsFile)
-{
-    JsonHelper.loadSettings(settingsFile);
-
-    //Show the console window if selected.
-    consolePane.setVisible(settings.showConsole);
-
-    //Go through our settings for omniBoxOptions and add all the options from the settings file to the GUI.
-    for (Object option : settings.omniBoxOptions)
     {
-        companySelect.addItem(option);
-    }
+        JsonHelper.loadSettings(settingsFile);
 
-    //Update the whole thing. MAKE SURE TO DO ANY CHANGES TO THE GUI ABOVE THIS OR IT WILL NEVER UPDATE CORRECTLY!!
-    newGlassEntry.updateUI();
-}
+        //Show the console window if selected.
+        consolePane.setVisible(settings.showConsole);
+
+        //Go through our settings for omniBoxOptions and add all the options from the settings file to the GUI.
+        for (Object option : settings.omniBoxOptions)
+        {
+            companySelect.addItem(option);
+        }
+
+        //Update the whole thing. MAKE SURE TO DO ANY CHANGES TO THE GUI ABOVE THIS OR IT WILL NEVER UPDATE CORRECTLY!!
+        newGlassEntry.updateUI();
+    }
 
     public void consoleAppend(String input) throws IOException, BadLocationException
     {

@@ -3,14 +3,14 @@
   <grid id="27dc6" binding="contentPane" layout-manager="GridLayoutManager" row-count="4" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="877" height="511"/>
+      <xy x="20" y="20" width="877" height="553"/>
     </constraints>
     <properties>
       <name value="Label Editor"/>
     </properties>
     <border type="none"/>
     <children>
-      <grid id="b0894" binding="labelPane" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="b0894" binding="labelPane" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -25,7 +25,7 @@
         <children>
           <component id="14840" class="Claycorp.DataLabel" binding="lableImage">
             <constraints>
-              <grid row="0" column="0" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
           </component>
@@ -85,34 +85,6 @@
             </constraints>
             <properties>
               <text value="Up/Down"/>
-            </properties>
-          </component>
-          <component id="d907a" class="javax.swing.JSpinner" binding="barcodeWidth">
-            <constraints>
-              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties/>
-          </component>
-          <component id="9b224" class="javax.swing.JSpinner" binding="barcodeHeight">
-            <constraints>
-              <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties/>
-          </component>
-          <component id="710c" class="javax.swing.JLabel">
-            <constraints>
-              <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="Width"/>
-            </properties>
-          </component>
-          <component id="371e1" class="javax.swing.JLabel">
-            <constraints>
-              <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="Height"/>
             </properties>
           </component>
           <component id="92829" class="javax.swing.JLabel">
@@ -244,19 +216,19 @@
               <text value="Show?"/>
             </properties>
           </component>
-          <component id="3483" class="javax.swing.JSpinner" binding="spinner2" default-binding="true">
+          <component id="3483" class="javax.swing.JSpinner" binding="sizeTextFontSize">
             <constraints>
               <grid row="3" column="9" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
           </component>
-          <component id="86d85" class="javax.swing.JSpinner" binding="spinner1" default-binding="true">
+          <component id="86d85" class="javax.swing.JSpinner" binding="titleTextFontSize">
             <constraints>
               <grid row="3" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
           </component>
-          <component id="b58ed" class="javax.swing.JSpinner" binding="spinner3" default-binding="true">
+          <component id="b58ed" class="javax.swing.JSpinner" binding="priceTextFontSize">
             <constraints>
               <grid row="3" column="13" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -489,6 +461,50 @@
               <horizontalTextPosition value="10"/>
               <text value="Show?"/>
             </properties>
+          </component>
+          <component id="fa0d4" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Left/Right"/>
+            </properties>
+          </component>
+          <component id="7b91a" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Up/Down"/>
+            </properties>
+          </component>
+          <component id="371e1" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Height"/>
+            </properties>
+          </component>
+          <component id="710c" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Width"/>
+            </properties>
+          </component>
+          <component id="d907a" class="javax.swing.JSpinner" binding="barcodeWidth">
+            <constraints>
+              <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="9b224" class="javax.swing.JSpinner" binding="barcodeHeight">
+            <constraints>
+              <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
           </component>
         </children>
       </grid>
