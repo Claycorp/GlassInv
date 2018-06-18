@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Path;
 import java.util.regex.Pattern;
 
 public class Helper
@@ -71,12 +72,14 @@ public class Helper
     //TODO: Add printing section to the commands, Currently it only creates the data to be printed and never prints it.
     //TODO: Add lots of logging for debug purposes.
     //TODO: MAKE SURE TO REDIRECT OUTPUT AND ERRORS TO LOGS! ALWAYS!
-    public static void brotherLabelPrint()
+    public static void brotherLabelPrint(final Path settingsFile)
     {
+        DataSettings settings = JsonHelper.loadSettings(settingsFile);
+
         // String 1: The program to run.
         // String 2: Command for CMD to run command and terminate.
         // String 3: The command being sent to the python printing program. This "brother_ql_create" only creates the printing data, "brother_ql_print" is needed to send the data.
-        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "c/" ,"brother_ql_create -m QL-710W -s 62 F:\\Java\\Game\\src\\Claycorp\\code128.png F:\\Java\\Game\\temp\\test.bin");
+        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "c/" ,"brother_ql_create -m " + settings.selectedPrinter + " -s " + settings.selectedPaper + " F:\\Java\\Game\\src\\Claycorp\\code128.png F:\\Java\\Game\\temp\\test.bin");
         try
         {
             Process p = builder.start();

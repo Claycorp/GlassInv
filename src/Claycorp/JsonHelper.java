@@ -16,14 +16,18 @@ public class JsonHelper
     //TODO: Add backup system for invalid/corrupt files.
     public static List<DataGlassSheet> loadDatabase(Path databaseFile)
     {
+        //Check if the file exists.
         if (Files.notExists(databaseFile))
         {
+            //If the file doesn't exist return a new ArrayList that is empty.
             return new ArrayList<>();
         }
         else
         {
+            //Otherwise attempt to read the file
             try (FileReader fileReader = new FileReader(databaseFile.toFile()))
             {
+                //Fill the array list with
                 ArrayList<DataGlassSheet> db = Main.gson.fromJson(fileReader, new TypeToken<ArrayList<DataGlassSheet>>() {}.getType());
                 if (db == null) return new ArrayList<>();
                 return db;

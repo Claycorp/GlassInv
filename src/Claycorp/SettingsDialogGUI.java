@@ -52,7 +52,7 @@ public class SettingsDialogGUI extends JDialog
         }
 
         //Got to do this AFTER filling the boxes.... DUH
-        paperSizeSelector.setSelectedItem(settings.seletedPaper);
+        paperSizeSelector.setSelectedItem(settings.selectedPaper);
         printerModelSelctor.setSelectedItem(settings.selectedPrinter);
 
         buttonOK.addActionListener(new ActionListener()
@@ -124,14 +124,7 @@ public class SettingsDialogGUI extends JDialog
             @Override
             public void itemStateChanged(ItemEvent e)
             {
-                if (e.getStateChange() == ItemEvent.DESELECTED)
-                {
-                    settings.showConsole = false;
-                }
-                else
-                {
-                    settings.showConsole = true;
-                }
+                settings.showConsole = e.getStateChange() != ItemEvent.DESELECTED;
             }
         });
 
@@ -149,7 +142,7 @@ public class SettingsDialogGUI extends JDialog
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                settings.seletedPaper = paperSizeSelector.getSelectedItem().toString();
+                settings.selectedPaper = paperSizeSelector.getSelectedItem().toString();
             }
         });
     }

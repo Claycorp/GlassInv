@@ -47,11 +47,11 @@ public class EntryGUI
     private JButton deleteButton;
     private JButton edit;
     private JButton printButton;
+    private JPanel labelPreview;
 
     //TODO: Fix table sorting being incorrect.
     //TODO: Add save on exit prompt (some how).
     //TODO: Add printing based off the setup label template.
-    //TODO: Delete from the JSON not the table.
     EntryGUI(final Path databaseFile, final Path settingsFile)
     {
         db = JsonHelper.loadDatabase(databaseFile);
@@ -62,19 +62,18 @@ public class EntryGUI
         //Some start text and the all important first HTML tag. THIS MUST HAVE <html> OR EVERYTHING IS FUCKED.
         console.setText("<html>Welcome to The List");
 
+        //TODO: This is being done to stop the columns from being reorderd and messing up what the label data gets, It is possible to fix but this will do...
+        glassTable.getTableHeader().setReorderingAllowed(false);
+
         uiUpdate(settingsFile);
 
-        //todo: Decide if this is really needed... If so, make sure to reset everything to default.
         //Clears all text fields and console.
         clearButton.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                sizeTextBox1.setText("");
-                sizeTextBox2.setText("");
-                nameOfGlassTextBox.setText("");
-                console.setText("");
+                cleanEntry();
             }
         });
 
@@ -107,8 +106,6 @@ public class EntryGUI
                 }
                 catch (NumberFormatException ex)
                 {
-                    //TODO: Check to make sure the dialog isn't needed 100%
-                    //JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), ex.getMessage(), "Number Error", JOptionPane.ERROR_MESSAGE);
                     Logger.log("\n" + ex.getMessage(), 2);
                     return;
                 }
@@ -119,6 +116,7 @@ public class EntryGUI
                 JsonHelper.saveDatabase(databaseFile, db);
                 // The underlying data has changed, so the UI must be refreshed
                 glassTable.updateUI();
+                cleanEntry();
             }
         });
 
@@ -157,16 +155,51 @@ public class EntryGUI
                 dialog.setVisible(true);
             }
         });
+        //TODO: How to check this correctly so that if something is missing it will turn it off... else if?
+        //TODO: How to size? Our size isn't saved in our table but is in the data somewhere. We need to liberate it!
         labelEditor.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                JFrame frame1 = new JFrame("Label Editor");
-                frame1.setContentPane(new LabelMakerGUI().contentPane);
-                frame1.setTitle("Label Editor");
-                frame1.pack();
-                frame1.setVisible(true);
+                int row = glassTable.getSelectedRow();
+
+                if (row > -1)
+                {
+                    DataLabel.title = glassTable.getValueAt(row, 2).toString();
+                    DataLabel.price = glassTable.getValueAt(row, 4).toString();
+
+                    if (DataLabel.title.isEmpty())
+                    {
+                        if (JOptionPane.showConfirmDialog(newGlassEntry, "The title is empty, are you sure you want to continue?", "Missing Title", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == 0)
+                        {
+                            DataLabel.title = "";
+                            DataLabel.displayTitle = false;
+
+                            if (DataLabel.price.isEmpty())
+                            {
+
+                                if (JOptionPane.showConfirmDialog(newGlassEntry, "The price is empty, are you sure you want to continue?", "Missing Price", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == 0)
+                                {
+                                    DataLabel.price = "";
+                                    DataLabel.displayPrice = false;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        JFrame frame1 = new JFrame("Label Editor");
+                        frame1.setContentPane(new LabelMakerGUI().contentPane);
+                        frame1.setTitle("Label Editor");
+                        frame1.pack();
+                        frame1.setVisible(true);
+                    }
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog(newGlassEntry, "You can't make a label from nothing, Please select a row first!", "OOF", JOptionPane.WARNING_MESSAGE);
+                }
             }
         });
         deleteButton.addActionListener(new ActionListener()
@@ -174,15 +207,32 @@ public class EntryGUI
             @Override
             public void actionPerformed(ActionEvent e)
             {
-
-                //TODO: Remove things from the JSON and reload rather than from the table.
-                glassTable.getSelectedRow();
-                Logger.log(String.valueOf(glassTable.getSelectedRow()), 0);
-                if (JOptionPane.showInternalConfirmDialog(newGlassEntry, "You are about to delete row \"" + glassTable.getSelectedRow() + "\"! Are you sure?", "Confirm Delete", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == 0)
+                // Get the selected row.
+                int row = glassTable.getSelectedRow();
+                // Make sure the selected row exists. 0 is valid thus we need to look for anything more than -1 to continue.
+                if (row > -1)
                 {
-                    glassTable.remove(glassTable.getSelectedRow());
-                    glassTable.updateUI();
+                    // We can now safely get values from the table.
+                    Object title = glassTable.getValueAt(row, 0);
+                    Object uuid = glassTable.getValueAt(row, 6);
+
+                    // Lets make sure the person picked the correct line before we shitcan this entry.
+                    if (JOptionPane.showInternalConfirmDialog(newGlassEntry, "You are about to delete \"" + title + " " + uuid + "\" Are you sure?", "Confirm Delete", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == 0)
+                    {
+                        // If they accept their fate fuck that shit up.
+                               db.remove(row);
+                               JsonHelper.saveDatabase(databaseFile, db);
+                               db.clear();
+                               db.addAll(JsonHelper.loadDatabase(databaseFile));
+                               glassTable.updateUI();
+                    }
                 }
+                // If they think they can some how manage to delete all of nothing lets make sure they know... #StupidProof.
+                else
+                {
+                    JOptionPane.showMessageDialog(newGlassEntry, "You can't delete nothing, Please select a row first!", "OOF", JOptionPane.WARNING_MESSAGE);
+                }
+
             }
         });
         edit.addActionListener(new ActionListener()
@@ -190,7 +240,7 @@ public class EntryGUI
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                Helper.brotherLabelPrint();
+                Helper.brotherLabelPrint(settingsFile);
             }
         });
         printButton.addActionListener(new ActionListener()
@@ -235,6 +285,14 @@ public class EntryGUI
         doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()), input);
     }
 
+    public void cleanEntry()
+    {
+        sizeTextBox1.setText("");
+        sizeTextBox2.setText("");
+        nameOfGlassTextBox.setText("");
+        pricePaidTextBox.setText("");
+        partIDTextBox.setText("");
+    }
     public void getSelectedRow()
     {
         glassTable.getSelectedRow();
@@ -257,11 +315,11 @@ public class EntryGUI
     private void $$$setupUI$$$()
     {
         newGlassEntry = new JPanel();
-        newGlassEntry.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(5, 2, new Insets(5, 5, 5, 5), -1, -1));
+        newGlassEntry.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(6, 2, new Insets(5, 5, 5, 5), -1, -1));
         newGlassEntry.setForeground(new Color(-6598469));
         newGlassEntry.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "What shit do I own?"));
         entryPane = new JTabbedPane();
-        newGlassEntry.add(entryPane, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_EAST, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, 1, null, null, null, 0, false));
+        newGlassEntry.add(entryPane, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, 1, null, null, null, 0, false));
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 1, new Insets(5, 0, 0, 0), -1, -1));
         entryPane.addTab("Glass Entry", panel1);
@@ -376,7 +434,7 @@ public class EntryGUI
         console.setToolTipText("Information about what is going on!");
         consolePane.setViewportView(console);
         final JToolBar toolBar2 = new JToolBar();
-        newGlassEntry.add(toolBar2, new com.intellij.uiDesigner.core.GridConstraints(4, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 20), null, 0, false));
+        newGlassEntry.add(toolBar2, new com.intellij.uiDesigner.core.GridConstraints(5, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 20), null, 0, false));
         deleteButton = new JButton();
         deleteButton.setText("Delete");
         toolBar2.add(deleteButton);
@@ -388,7 +446,12 @@ public class EntryGUI
         printButton.setText("Print Selected");
         toolBar2.add(printButton);
         final com.intellij.uiDesigner.core.Spacer spacer2 = new com.intellij.uiDesigner.core.Spacer();
-        newGlassEntry.add(spacer2, new com.intellij.uiDesigner.core.GridConstraints(3, 1, 2, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        newGlassEntry.add(spacer2, new com.intellij.uiDesigner.core.GridConstraints(3, 1, 3, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        labelPreview = new JPanel();
+        labelPreview.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        newGlassEntry.add(labelPreview, new com.intellij.uiDesigner.core.GridConstraints(4, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final DataLabel dataLabel1 = new DataLabel();
+        labelPreview.add(dataLabel1, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     }
 
     /**

@@ -5,11 +5,11 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
-import java.awt.print.PrinterException;
 
 public class DataLabel extends JComponent implements Printable
 {
 
+    //TODO: Link this to paper size.
     static int labelWidth = 696;
     static int labelHeight = 150;
 
@@ -20,9 +20,12 @@ public class DataLabel extends JComponent implements Printable
     static int xposBarcode = 10;
     static int yposBarcode = 10;
     static double barcodeScale = 3;
+    static boolean barcodeHasBackground = true;
+    static Color barcodeBackgroundColor = Color.WHITE;
+    static Color barcodeColor = Color.BLACK;
 
     //TODO: We want floats for precise movements but the spinners are not working with them currently. Look into this someday perhaps...
-    String title = "Title";
+    static String title = "Title";
     static boolean displayTitle = true;
     static float xposTitle = 50.5F;
     static float yposTitle = 50F;
@@ -30,7 +33,7 @@ public class DataLabel extends JComponent implements Printable
     static int titleFontSize = 20;
     static Color titleColor = Color.BLACK;
 
-    String size = "Size";
+    static String size = "Size";
     static boolean displaySize = true;
     static float xposSize = 40F;
     static float yposSize = 20F;
@@ -38,7 +41,7 @@ public class DataLabel extends JComponent implements Printable
     static int sizeFontSize = 20;
     static Color sizeColor = Color.BLACK;
 
-    String price = "Price";
+    static String price = "Price";
     static boolean displayPrice = true;
     static float xposPrice = 30F;
     static float yposPrice = 10F;
@@ -46,6 +49,7 @@ public class DataLabel extends JComponent implements Printable
     static int priceFontSize = 20;
     static Color priceColor = Color.BLACK;
 
+    //TODO: Link this to label properties
     private static BufferedImage label = new BufferedImage(696,150, BufferedImage.TYPE_INT_ARGB);
 
     public DataLabel()
@@ -69,7 +73,7 @@ public class DataLabel extends JComponent implements Printable
     }
 
     @Override
-    public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException
+    public int print(Graphics graphics, PageFormat pageFormat, int pageIndex)
     {
         if (pageIndex > 0)
         {

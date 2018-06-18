@@ -11,10 +11,11 @@ public class DataSettings
     public String dateTimeFormat = "yyyy/MM/dd-HH:mm:ss";
     public boolean redTape;
     public String selectedPrinter = "QL-700";
-    public String seletedPaper = "12";
+    public String selectedPaper = "12";
 
     DataSettings ()
     {
+        omniBoxOptions.add("Unknown");
         omniBoxOptions.add("Kokomo");
         omniBoxOptions.add("Spectrum");
         omniBoxOptions.add("Oceanside Glasstile");
